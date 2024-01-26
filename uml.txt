@@ -1,0 +1,116 @@
+@startuml
+
+    MapLoader <.. Main
+    Tiles <.. Main
+    Cell <.. Main
+    class Main {
+        ~GameMap map
+        ~Canvas canvas
+        ~GraphicsContext context
+        ~Label healthLabel
+        +{static} void main(String[])
+        +void start(Stage)
+        -void onKeyPressed(KeyEvent)
+        -void refresh()
+    }
+
+    Main <.. App
+    class App {
+        +{static} void main(String[])
+    }
+
+    Tiles +-- Tile
+    Tiles "1" *-- "*" Tile
+    class Tiles {
+        +{static} int TILE_WIDTH
+        -{static} Image tileset
+        -{static} Map<String, Tile> tileMap
+        +{static} void drawTile(GraphicsContext, Drawable, int, int)
+    }
+    class Tile {
+        +x int
+        +y int
+        +w int
+        +h int
+        ~Tile(int, int)
+    }
+
+    class MapLoader {
+        +{static} GameMap loadMap()
+    }
+
+    Main "1" *-- "1" GameMap
+    GameMap "1" *-- "*" Cell
+    class GameMap {
+        -int width
+        -int height
+        -Cell[][] cells
+        -Player player
+        +GameMap(int, int, CellType)
+        +Cell getCell(int, int)
+        +void setPlayer(Player)
+        +Player getPlayer()
+        +int getWidth()
+        +int getHeight()
+    }
+
+    interface Drawable {
+        +String getTileName()
+    }
+
+    Cell "1" *-- "1" CellType
+    enum CellType {
+        EMPTY
+        FLOOR
+        WALL
+        -String tileName
+        -CellType(String)
+        +String getTileName()
+    }
+
+    Drawable <|.. Cell
+    Cell "1" *-- "1" GameMap
+    class Cell {
+        -CellType type
+        -Actor actor
+        -GameMap gameMap
+        -int x
+        -int y
+        ~Cell(GameMap, int, int, CellType)
+        +CellType getType()
+        +void setType(CellType)
+        +void setActor(Actor)
+        +Actor getActor()
+        +Cell getNeighbor(int, int)
+        +String getTileName()
+        +int getX()
+        +int getY()
+    }
+
+    Drawable <|.. Actor
+    Cell "1" *--* "1" Actor
+    abstract class Actor {
+        -Cell cell
+        -int health
+        +Actor(Cell)
+        +void move(int, int)
+        +int getHealth()
+        +Cell getCell()
+        +int getX()
+        +int getY()
+    }
+
+    Actor <|-- Player
+    GameMap "1" *-- "1" Player
+    class Player {
+        +Player(Cell)
+        +String getTileName(String)
+    }
+
+    Actor <|-- Skeleton
+    class Skeleton {
+        +Skeleton(Cell)
+        +String getTileName()
+    }
+
+@enduml
